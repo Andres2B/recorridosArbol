@@ -1,0 +1,118 @@
+#include <iostream>
+#include <queue>
+#include <map>
+#include <iomanip>
+#include <string>
+#include <set>
+using namespace std;
+
+struct TreeNode {
+    int data;
+    TreeNode* left;
+    TreeNode* right;
+
+    TreeNode(int value) : data(value), left(nullptr), right(nullptr) {}
+};
+
+bool insert(TreeNode*& node, int value) {
+    if (node == nullptr) {
+        node = new TreeNode(value);
+        return true;
+    } else {
+        if (value < node->data) {
+            if (insert(node->left, value)) return true;
+        } else if (value > node->data) {
+            if (insert(node->right, value)) return true;
+        } else {
+            cout << "Error: El numero " << value << " ya existe en el arbol." << endl;
+            return false;
+        }
+    }
+    return false;
+}
+
+void printTreeColumns(TreeNode* root) {
+    if (!root) return;
+
+    map<int, vector<int>> columnMap; 
+    queue<pair<TreeNode*, int>> nodeQueue; 
+    nodeQueue.push({root, 1}); 
+
+    while (!nodeQueue.empty()) {
+        TreeNode* node = nodeQueue.front().first;
+        int column = nodeQueue.front().second;
+        nodeQueue.pop();
+
+        columnMap[column].push_back(node->data); 
+
+        if (node->left) {
+            nodeQueue.push({node->left, column - 1}); 
+        }
+        if (node->right) {
+            nodeQueue.push({node->right, column + 1}); 
+        }
+    }
+
+ 
+    for (auto& columnPair : columnMap) {
+        cout << "Columna " << columnPair.first << ": ";
+        for (int value : columnPair.second) {
+            cout << value << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    TreeNode* root = nullptr;
+    int option;
+
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Establecer raiz\n";
+        cout << "2. Agregar numero\n";
+        cout << "3. Mostrar arbol\n";
+        cout << "4. Salir\n";
+        cout << "Opcion: ";
+        cin >> option;
+
+        switch (option) {
+            case 1: {
+                int rootValue;
+                cout << "Ingrese el valor de la raiz del arbol: ";
+                cin >> rootValue;
+                root = new TreeNode(rootValue);
+                break;
+            }
+            case 2: {
+                if (!root) {
+                    cout << "Error: La raiz del arbol no ha sido establecida.\n";
+                } else {
+                    int inputValue;
+                    cout << "Ingrese un numero para agregar al arbol: ";
+                    cin >> inputValue;
+                    if (insert(root, inputValue)) {
+                        cout << "Numero agregado exitosamente." << endl;
+                    }
+                }
+                break;
+            }
+            case 3: {
+                if (!root) {
+                    cout << "El arbol esta vacio.\n";
+                } else {
+                    cout << "Árbol por columnas:" << endl;
+                    printTreeColumns(root);
+                }
+                break;
+            }
+            case 4:
+                cout << "Saliendo del programa.\n";
+                break;
+            default:
+                cout << "Opcion invalida. Intente de nuevo.\n";
+        }
+    } while (option != 4);
+
+    return 0;
+}
